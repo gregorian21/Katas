@@ -1,0 +1,90 @@
+<html>
+    <head>
+        <title>Monte Carlo Estimation of &#960;</title>
+        <style>
+            canvas {
+                background-color: #eee;
+                border: 4px solid #ddd;
+                float:left
+            }
+
+            #results {
+                float: left;
+                margin-left: 20px;
+                font-family: monospace;
+                width: 400px;
+                height: 800px;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Monte Carlo Estimation of &#960;</h1>
+        <p>
+            Sample Size: <input name="samples" type="number" id="samples" value="1000000"/>
+            Iterations: <input name="iterations" type="number" id="iterations" value="10"/>
+            <button id="start" onclick="startCalc()">Start</button>
+        </p>
+        <canvas height="800" width="800" id="canvas">Please use a browser that supports the Canvas element</canvas><br/>
+        <textarea id="results">  #  Estimate
+        </textarea>
+        <script>
+
+            function getRandomPos(max) {
+                min = Math.ceil(0);
+                max = Math.floor(max);
+                return Math.floor(Math.random() * (max+1));
+            }
+
+            function drawPoint(ctx, x, y, color) {
+                ctx.fillStyle = color;
+                ctx.fillRect(x, y, 1, 1);
+            }
+
+            function startCalc() {
+                var pi = document.getElementById("pi");
+                var samples = document.getElementById("samples").value;
+                var iterations = document.getElementById("iterations").value;
+                var results = document.getElementById("results");
+                var canvas = document.getElementById("canvas")
+                var ctx = canvas.getContext("2d");
+                var size = canvas.width;
+
+                var total = 0;
+                for (var iteration = 0; iteration < iterations; iteration++) {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                    var pointsWithinCircle = 0;
+
+                    for (var i = 0; i < samples; i++) {
+                        var x = getRandomPos(size);
+                        var y = getRandomPos(size);
+                        var inCircle = Math.sqrt(x*x + y*y) <= size;
+
+                        if (inCircle) {
+                            drawPoint(ctx, x, y, "green");
+                            pointsWithinCircle++;
+                        } else {
+                            drawPoint(ctx, x, y, "black");
+                        }
+                    }
+
+                    var estimate = 4 * (pointsWithinCircle / samples);
+                    total += estimate;
+                    results.value = results.value + "\n  " + iteration + "  " + estimate;
+                }
+                results.value = results.value + "\n--------------------\n  " + total/iterations;
+            }
+
+            window.onload = function() {
+                var canvas = document.getElementById("canvas");
+                var ctx = canvas.getContext("2d");
+
+                ctx.fillStyle = "green";
+                ctx.beginPath();
+                ctx.arc(0, 0, canvas.width, 0, Math.PI * 0.5);
+                ctx.stroke();
+            };
+
+        </script>
+    </body>
+</html>
